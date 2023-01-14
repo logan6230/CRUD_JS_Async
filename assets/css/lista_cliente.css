@@ -9,3 +9,8 @@
 		padding-right: calc((100vw - 900px)/2);
 	}
 }
+
+.colors{
+	color: blue;
+	background: blue;
+}

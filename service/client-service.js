@@ -1,35 +1,3 @@
-//backticks
-const crearNuevaLinea = (nombre, email) => {
-  const linea = document.createElement("tr");
-  const contenido = `
-    <td class="td" data-td>
-      ${nombre}
-    </td>
-    <td>${email}</td>
-    <td>
-      <ul class="table__button-control">
-        <li>
-          <a
-            href="../screens/editar_cliente.html"
-            class="simple-button simple-button--edit"
-          >
-            Editar
-          </a>
-        </li>
-        <li>
-          <button class="simple-button simple-button--delete" type="button">
-            Eliminar
-          </button>
-        </li>
-      </ul>
-    </td>
-  `;
-  linea.innerHTML = contenido;
-  return linea;
-};
-
-const table = document.querySelector("[data-table]");
-
 //Abrir http (método,url)
 
 // CRUD   - Métodos HTTP
@@ -38,33 +6,82 @@ const table = document.querySelector("[data-table]");
 // Update - PUT/PATCH
 // Delete - DELETE
 
-const listaClientes = () => {
-  const promise = new Promise((resolve, reject) => {
-    const http = new XMLHttpRequest();
-    http.open("GET", "http://localhost:3000/perfiles");
+//Forma de hacer conexion con el backen conXMLHttpRequest
+// const listaClientes = () => {
+//   const promise = new Promise((resolve, reject) => {
+//     //la clase XMLHttpRequest es nativa del navegador, esta me crea la conexion con el backend.
+//     const http = new XMLHttpRequest();
+//     //Metodo que recibe dos parametros para realizar la conexion y la accion http.
+//     http.open("GET", "http://localhost:3000/perfils");
 
-    http.send();
+//     http.send();
 
-    http.onload = () => {
-      const response = JSON.parse(http.response);
-      if (http.status >= 400) {
-        reject(response);
-      } else {
-        resolve(response);
-      }
-    };
+//     http.onload = () => {
+//       const response = JSON.parse(http.response);
+//       if (http.status >= 400) {
+//         reject(response);
+//       } else {
+//         resolve(response);
+//       }
+//     };
+//   });
+//   return promise;
+// };
+
+// //Fetch API forma larga
+// const listaClientes = () => {
+
+//   return fetch("http://localhost:3000/perfil").then(response =>{
+//     return response.json();
+//   });
+// };
+
+//Fetch API forma corta
+const listaClientes = () => fetch("http://localhost:3000/perfil").then((response) => response.json())
+
+const crearCliente = (nombre, email) => {
+  return fetch("http://localhost:3000/perfil", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nombre,
+      email,
+      id: uuid.v4()
+    }),
   });
-  return promise;
+};
+const eliminarCliente = (id) => {
+  // Se deben poner backticks
+  return fetch(`http://localhost:3000/perfil/${id}`, {
+    method: "DELETE"
+  });
 };
 
-listaClientes()
-  .then((data) => {
-    data.forEach((perfil) => {
-      const nuevaLinea = crearNuevaLinea(perfil.nombre, perfil.email);
-      table.appendChild(nuevaLinea);
-    });
-  })
-  .catch((error) => alert("Ocurrió un error"));
+const detalleCliente = (id) => {
+  return fetch(`http://localhost:3000/perfil/${id}`).then((response) => response.json());
+}
 
-// console.log(data);
-//
+const actualizarCliente = (nombre, email, id) => {
+  return fetch(`http://localhost:3000/perfil/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ nombre,   email }),
+  })
+    .then((response) => console.log(response))
+    .catch((err) => console.log(err))
+ 
+};
+
+export const clientServices = {
+  // se puede definir de dos formas
+  // lista clientes o listaClientes:listaClientes
+  listaClientes,
+  crearCliente,
+  eliminarCliente,
+  detalleCliente,
+  actualizarCliente
+}
